@@ -1,4 +1,6 @@
-from sqlalchemy import insert, select
+from typing import Any
+
+from sqlalchemy import insert, select, Row
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.repository.tables import Users
@@ -18,7 +20,8 @@ class GetUserByName:
     def __init__(self, connection: AsyncConnection):
         self._connection = connection
 
-    async def __call__(self, name: str) -> int | None:
-        return await self._connection.scalar(
-            select(Users.c.id).where(Users.c.name == name)
+    async def __call__(self, name: str) -> Row[Any] | None:
+        result = await self._connection.execute(
+            select(Users).where(Users.c.name == name)
         )
+        return result.fetchone()

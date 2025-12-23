@@ -26,5 +26,11 @@ class BaseSchema(ClassSchema): ...
 
 @dataclass
 class RegisterRequestSchema(BaseSchema):
-    name: str = field(metadata=dict(requiered=True))
-    password: str = field(metadata=dict(requiered=True))
+    name: str = field(metadata=dict(required=True))
+    password: str = field(metadata=dict(required=True))
+
+
+@dataclass
+class LoginResponseSchema(BaseSchema):
+    access_token: str = field(metadata=dict(required=True))
+    token_type: str = field(metadata=dict(required=True))

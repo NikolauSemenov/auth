@@ -1,5 +1,5 @@
 from aiohttp.web import Application
-from aiohttp_apigami import setup_aiohttp_apispec, validation_middleware
+from aiohttp_apigami import setup_aiohttp_apispec
 
 from src.repository.base import DbAccessor
 from src.web.middleware import Middleware
@@ -16,7 +16,6 @@ def make_app():
         swagger_path="/docs",
     )
 
-    app.middlewares.append(validation_middleware)
     setup_routes(app)
 
     db_accessor = DbAccessor()

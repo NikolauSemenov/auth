@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 
 from pydantic import PostgresDsn, RedisDsn
@@ -15,6 +16,10 @@ class Settings(BaseSettings):
 
     postgres_dsn: PostgresDsn
     redis_dsn: RedisDsn
+
+    secret_key: str = "SUPER_SECRET_KEY"
+    algorithm: str = "HS256"
+    access_token_lifetime: timedelta = timedelta(minutes=15)
 
     @property
     def api_prefix(self) -> str:

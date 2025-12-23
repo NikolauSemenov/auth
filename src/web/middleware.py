@@ -2,6 +2,7 @@ from typing import Callable, Awaitable
 
 from aiohttp.abc import Request, StreamResponse
 from aiohttp.web_middlewares import middleware
+from aiohttp_apigami import validation_middleware
 
 
 class Middleware:
@@ -21,4 +22,4 @@ class Middleware:
                 return await handler(request)
 
     def get_middlewares(self):
-        return [self._transaction_middleware]
+        return [validation_middleware, self._transaction_middleware]
