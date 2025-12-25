@@ -1,14 +1,12 @@
 from typing import Any
 from sqlalchemy import insert, select, Row, update
-from sqlalchemy.ext.asyncio import AsyncConnection
+
+from src.repository.query.base import UserBase
 from src.repository.tables import Users
 
 
-class CreateUser:
+class CreateUser(UserBase):
     __slots__ = ("_connection",)
-
-    def __init__(self, connection: AsyncConnection):
-        self._connection = connection
 
     async def __call__(self, name: str, password: str) -> int:
         user_id = await self._connection.scalar(
@@ -16,14 +14,11 @@ class CreateUser:
         )
         if user_id is None:
             raise ValueError("Failed to create user")
-        return int(user_id)  # возвращаем int
+        return int(user_id)
 
 
-class GetUserByName:
+class GetUserByName(UserBase):
     __slots__ = ("_connection",)
-
-    def __init__(self, connection: AsyncConnection):
-        self._connection = connection
 
     async def __call__(self, name: str) -> Row[Any] | None:
         result = await self._connection.execute(
@@ -32,11 +27,8 @@ class GetUserByName:
         return result.fetchone()
 
 
-class GetUserById:
+class GetUserById(UserBase):
     __slots__ = ("_connection",)
-
-    def __init__(self, connection: AsyncConnection):
-        self._connection = connection
 
     async def __call__(self, user_id: int) -> Row[Any] | None:
         result = await self._connection.execute(
@@ -45,11 +37,8 @@ class GetUserById:
         return result.fetchone()
 
 
-class UpdateUserActive:
+class UpdateUserActive(UserBase):
     __slots__ = ("_connection",)
-
-    def __init__(self, connection: AsyncConnection):
-        self._connection = connection
 
     async def __call__(self, user_id: int) -> None:
         await self._connection.execute(
