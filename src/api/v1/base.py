@@ -2,10 +2,12 @@ from aiohttp import web
 from aiohttp.abc import Request
 from aiohttp.web_response import Response
 
+from src.config.settings import settings
 from src.repository.cache.black_token import BlackToken
 from src.repository.repository import SqlAlchemyUserRepository
 from src.schemas.auth import BaseSchema
 from src.services.mutation_user import MutationUser
+from src.utils.security.jwt import JwtSecurity
 
 
 class BaseViews(web.View):
@@ -14,6 +16,7 @@ class BaseViews(web.View):
         self._service = MutationUser(
             SqlAlchemyUserRepository(request["conn"]),
             BlackToken(request.app["state_repository"].cache),
+            JwtSecurity(settings),
         )
 
     @staticmethod

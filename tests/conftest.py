@@ -12,6 +12,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, AsyncConnec
 from sqlalchemy_utils import database_exists, drop_database, create_database
 
 from src.config.settings import Settings
+from src.utils.security.base import SecurityToken
+from src.utils.security.jwt import JwtSecurity
 from src.web.app import make_app
 
 faker = Faker()
@@ -77,3 +79,8 @@ async def client(aiohttp_client, test_app):
 @pytest.fixture
 def get_fake() -> Faker:
     return faker
+
+
+@pytest.fixture
+def get_security_token(test_settings) -> SecurityToken:
+    return JwtSecurity(test_settings)
