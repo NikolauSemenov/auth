@@ -6,7 +6,7 @@ from src.config.settings import settings
 from src.repository.cache.black_token import BlackToken
 from src.repository.repository import SqlAlchemyUserRepository
 from src.schemas.auth import BaseSchema
-from src.services.mutation_user import User
+from src.services.user import User
 from src.utils.security.jwt import JwtSecurity
 
 

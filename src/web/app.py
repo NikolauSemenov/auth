@@ -17,7 +17,7 @@ def make_app(settings: Settings):
         swagger_path="/docs",
     )
 
-    setup_routes(app)
+    setup_routes(app, settings.api_prefix)
 
     state = AppStateRepository(settings)
     app["state_repository"] = state

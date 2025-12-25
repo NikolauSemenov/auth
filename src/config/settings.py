@@ -23,7 +23,7 @@ class Settings(BaseSettings):
 
     @property
     def api_prefix(self) -> str:
-        return f"/{self.project_name}/api/{self.project_version}"
+        return f"/{self.project_name}/api"
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env",

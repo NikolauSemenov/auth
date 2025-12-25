@@ -3,8 +3,8 @@ from aiohttp.web_app import Application
 from src.api.v1 import views
 
 
-def create_v1_routes(app: Application):
-    app.router.add_view("/register", views.RegisterView)
-    app.router.add_view("/login", views.LoginView)
-    app.router.add_view("/logout", views.LogoutView)
-    app.router.add_view("/verify", views.VerifyUserView)
+def create_v1_routes(app: Application, prefix: str):
+    app.router.add_view(rf"{prefix}/register", views.RegisterView)
+    app.router.add_view(rf"{prefix}/login", views.LoginView)
+    app.router.add_view(rf"{prefix}/logout", views.LogoutView)
+    app.router.add_view(rf"{prefix}/verify", views.VerifyUserView)

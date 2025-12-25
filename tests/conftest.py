@@ -1,4 +1,3 @@
-import asyncio
 from typing import AsyncIterator
 
 import pytest
@@ -84,3 +83,8 @@ def get_fake() -> Faker:
 @pytest.fixture
 def get_security_token(test_settings) -> SecurityToken:
     return JwtSecurity(test_settings)
+
+
+@pytest.fixture
+def get_prefix_v1(test_settings) -> str:
+    return f"{test_settings.api_prefix}/v1"
