@@ -1,4 +1,4 @@
-from aiohttp.web_exceptions import HTTPCreated, HTTPNoContent, HTTPOk
+from aiohttp.web_exceptions import HTTPNoContent, HTTPOk
 from aiohttp_apigami import docs, json_schema, response_schema, headers_schema
 
 from src.api.v1.base import BaseViews
@@ -18,8 +18,7 @@ class RegisterView(BaseViews):
     )
     @json_schema(schemas.RegisterRequestSchema.Schema())
     async def post(self):
-        await self._service.create_user(self.request["json"])
-        return HTTPCreated()
+        return self.response(await self._service.create_user(self.request["json"]), 201)
 
 
 class LoginView(BaseViews):
@@ -34,7 +33,7 @@ class LoginView(BaseViews):
     )
     @json_schema(schemas.RegisterRequestSchema.Schema())
     @response_schema(schemas.LoginResponseSchema.Schema, 200)
-    async def get(self):
+    async def post(self):
         return self.response(await self._service.login_user(self.request["json"]))
 
 
@@ -67,3 +66,24 @@ class LogoutView(BaseViews):
     async def delete(self):
         await self._service.logout_user(self.request["headers"])
         return HTTPNoContent()
+
+
+class GrantTokenView(BaseViews):
+    @docs(
+        tags=["Admin"],
+        summary="Выдача разрешения на использование токена",
+        responses={
+            200: {"description": "Permission granted"},
+            401: {"description": "Unauthorized"},
+            403: {"description": "Forbidden"},
+            422: {"description": "Unprocessable Entity"},
+            503: {"description": "Service Unavailable"},
+        },
+    )
+    @json_schema(schemas.GrantTokenRequestSchema.Schema())
+    @headers_schema(schemas.LogoutRequestSchema.Schema())
+    async def put(self):
+        await self._service.grant_token_permission(
+            self.request["json"], self.request["headers"]
+        )
+        return HTTPOk()

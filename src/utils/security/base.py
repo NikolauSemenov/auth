@@ -16,3 +16,6 @@ class SecurityToken(ABC):
 
     @abstractmethod
     def get_token_ttl(self, token: str) -> int: ...
+
+    @abstractmethod
+    def decode_token(self, token: str) -> int | None: ...

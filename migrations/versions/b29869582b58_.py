@@ -25,6 +25,8 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=True),
     sa.Column('password', sa.String(), nullable=True),
+    sa.Column('is_admin', sa.Boolean(), nullable=False, default=False),
+    sa.Column('is_active', sa.Boolean(), nullable=False, default=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
     )

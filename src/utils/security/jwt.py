@@ -66,3 +66,17 @@ class JwtSecurity(SecurityToken):
 
         now = int(datetime.now(UTC).timestamp())
         return max(0, exp - now)
+
+    def decode_token(self, token: str) -> int | None:
+        try:
+            payload = jwt.decode(
+                token, self._settings.secret_key, algorithms=[self._settings.algorithm]
+            )
+            if payload.get("type") != "access":
+                return None
+            sub = payload.get("sub")
+            if sub is None:
+                return None
+            return int(sub)
+        except JWTError:
+            return None

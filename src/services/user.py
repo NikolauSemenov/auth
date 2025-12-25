@@ -1,4 +1,9 @@
-from aiohttp.web_exceptions import HTTPConflict, HTTPUnauthorized
+from aiohttp.web_exceptions import (
+    HTTPConflict,
+    HTTPUnauthorized,
+    HTTPForbidden,
+    HTTPNotFound,
+)
 
 from src.repository.cache.base import Cache
 from src.repository.base import UserRepository
@@ -6,6 +11,8 @@ from src.schemas.auth import (
     RegisterRequestSchema,
     LoginResponseSchema,
     LogoutRequestSchema,
+    GrantTokenRequestSchema,
+    RegisterResponseSchema,
 )
 from src.utils.security.base import SecurityToken
 
@@ -23,17 +30,20 @@ class User:
         self._black_list = black_list
         self._security = security
 
-    async def create_user(self, user: RegisterRequestSchema):
+    async def create_user(self, user: RegisterRequestSchema) -> RegisterResponseSchema:
         if await self._user_repository.get_user_by_name(user.name):
             raise HTTPConflict(text="User with that name already exists")
-        await self._user_repository.create_user(
+        result = await self._user_repository.create_user(
             user.name, self._security.hash_password(user.password)
         )
+        return RegisterResponseSchema(user_id=result)
 
     async def login_user(self, user: RegisterRequestSchema) -> LoginResponseSchema:
         user_db = await self._user_repository.get_user_by_name(user.name)
-        if not user_db or not self._security.verify_password(
-            user.password, user_db.password
+        if (
+            not user_db
+            or not user_db.is_active
+            or not self._security.verify_password(user.password, user_db.password)
         ):
             raise HTTPUnauthorized()
         return LoginResponseSchema(
@@ -57,3 +67,22 @@ class User:
         is_verify = self._security.verify_access_token(data.Authorization.split(" ")[1])
         if not is_verify:
             raise HTTPUnauthorized()
+
+    async def grant_token_permission(
+        self, data: GrantTokenRequestSchema, headers: LogoutRequestSchema
+    ):
+        token = headers.Authorization.split(" ")[1]
+
+        current_user_id = self._security.decode_token(token)
+        if current_user_id is None:
+            raise HTTPUnauthorized(text="Invalid or expired token")
+
+        current_user = await self._user_repository.get_user_by_id(current_user_id)
+        if not current_user or not current_user.is_admin:
+            raise HTTPForbidden(text="Only admins can grant token permissions")
+
+        target_user = await self._user_repository.get_user_by_id(data.user_id)
+        if not target_user:
+            raise HTTPNotFound(text="Target user not found")
+
+        await self._user_repository.set_token_permission(data.user_id)

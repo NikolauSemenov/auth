@@ -31,6 +31,11 @@ class RegisterRequestSchema(BaseSchema):
 
 
 @dataclass
+class RegisterResponseSchema(BaseSchema):
+    user_id: int = field(metadata=dict(required=True))
+
+
+@dataclass
 class LoginResponseSchema(BaseSchema):
     access_token: str = field(metadata=dict(required=True))
     token_type: str = field(metadata=dict(required=True))
@@ -45,3 +50,8 @@ class LogoutRequestSchema(BaseSchema):
         if not value.startswith("Bearer "):
             raise ValidationError("Invalid authorization header")
         return value
+
+
+@dataclass
+class GrantTokenRequestSchema(BaseSchema):
+    user_id: int = field(metadata=dict(required=True))

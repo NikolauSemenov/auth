@@ -20,5 +20,5 @@ class BaseViews(web.View):
         )
 
     @staticmethod
-    def response(_schema: BaseSchema) -> Response:
-        return web.json_response(_schema.Schema().dump(_schema))
+    def response(_schema: BaseSchema, status: int = 200) -> Response:
+        return web.json_response(_schema.Schema().dump(_schema), status=status)
