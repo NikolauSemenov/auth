@@ -19,10 +19,12 @@ def get_fake_data_register(get_fake: Faker) -> dict[str, str]:
 @pytest.fixture
 async def create_user(connection_db: AsyncConnection, get_fake_data_register):
     return await connection_db.scalar(
-        insert(Users).values(
+        insert(Users)
+        .values(
             name=get_fake_data_register["name"],
             password=hash_password(get_fake_data_register["password"]),
-        ).returning(Users.c.id)
+        )
+        .returning(Users.c.id)
     )
 
 

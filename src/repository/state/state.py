@@ -7,6 +7,8 @@ from src.repository.state.base import StateRepository
 
 
 class AppStateRepository(StateRepository[PGAccessor, Redis]):
+    __slots__ = ("_db", "_cache_accessor")
+
     def __init__(self, settings: Settings):
         self._db = PGAccessor(settings.postgres_dsn.unicode_string())
         self._cache_accessor = RdAccessor(settings.redis_dsn.unicode_string())

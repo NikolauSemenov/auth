@@ -7,6 +7,8 @@ from src.repository.tables import Users
 
 
 class CreateUser:
+    __slots__ = ("_connection",)
+
     def __init__(self, connection: AsyncConnection):
         self._connection = connection
 
@@ -17,6 +19,8 @@ class CreateUser:
 
 
 class GetUserByName:
+    __slots__ = ("_connection",)
+
     def __init__(self, connection: AsyncConnection):
         self._connection = connection
 

@@ -17,6 +17,8 @@ from src.utils.security import (
 
 
 class MutationUser:
+    __slots__ = ("_user_repository", "_black_list")
+
     def __init__(self, user_repository: UserRepository, black_list: Cache):
         self._user_repository = user_repository
         self._black_list = black_list

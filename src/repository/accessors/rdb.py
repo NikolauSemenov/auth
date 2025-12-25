@@ -4,6 +4,8 @@ from src.repository.accessors.base import BaseRepository
 
 
 class RdAccessor(BaseRepository):
+    __slots__ = ("_redis",)
+
     def __init__(self, redis_dsn: str):
         self._redis = Redis.from_url(redis_dsn)
 

@@ -8,6 +8,8 @@ T = TypeVar("T", str, bytes)
 
 
 class BlackToken(Cache[T]):
+    __slots__ = ("_rdb",)
+
     def __init__(self, rdb: Redis):
         self._rdb = rdb
 
