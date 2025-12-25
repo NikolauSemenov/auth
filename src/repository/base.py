@@ -3,14 +3,12 @@ from typing import AsyncIterator
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncConnection
 
-from src.config.settings import settings
-
 
 class DbAccessor:
     __slots__ = ("_engine",)
 
-    def __init__(self):
-        self._engine = create_async_engine(settings.postgres_dsn.unicode_string())
+    def __init__(self, postgres_dsn: str):
+        self._engine = create_async_engine(postgres_dsn)
 
     async def close(self, _):
         await self._engine.dispose()

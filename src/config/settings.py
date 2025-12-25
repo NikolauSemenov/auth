@@ -1,7 +1,7 @@
 from datetime import timedelta
 from pathlib import Path
 
-from pydantic import PostgresDsn, RedisDsn
+from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     project_version: str
 
     postgres_dsn: PostgresDsn
-    redis_dsn: RedisDsn
 
     secret_key: str = "SUPER_SECRET_KEY"
     algorithm: str = "HS256"

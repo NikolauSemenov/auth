@@ -28,6 +28,13 @@ target_metadata = metadata
 # ... etc.
 
 
+def get_url() -> str:
+    if url := config.get_main_option("sqlalchemy.url"):
+        return url
+    raw_dsn = str(Settings().postgres_dsn)
+    return make_url(raw_dsn).set(drivername="postgresql").render_as_string(hide_password=False)
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -40,10 +47,8 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    raw_dsn = str(Settings().postgres_dsn)
-    url = make_url(raw_dsn).set(drivername="postgresql")
     context.configure(
-        url=url,
+        url=get_url(),
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -60,9 +65,7 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    raw_dsn = str(Settings().postgres_dsn)
-    url = make_url(raw_dsn).set(drivername="postgresql")
-    connectable = create_engine(url)
+    connectable = create_engine(get_url())
 
     with connectable.connect() as connection:
         context.configure(

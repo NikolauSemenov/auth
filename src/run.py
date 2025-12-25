@@ -5,7 +5,7 @@ from src.web.app import make_app
 
 
 def start_app():
-    return make_app()
+    return make_app(settings)
 
 
 if __name__ == "__main__":

@@ -1,19 +1,24 @@
 from datetime import datetime, UTC
 
 from jose import jwt
-from passlib.context import CryptContext
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 
 from src.config.settings import settings
 
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+ph = PasswordHasher()
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return ph.hash(password)
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(password: str, hashed_password: str) -> bool:
+    try:
+        ph.verify(hashed_password, password)
+        return True
+    except VerifyMismatchError:
+        return False
 
 
 def create_access_token(user_id: int):
