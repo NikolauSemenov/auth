@@ -13,11 +13,11 @@ class Middleware:
         handler: Callable[[Request], Awaitable[StreamResponse]],
     ) -> StreamResponse:
         if request.method in ["GET", "OPTION", "HEAD"]:
-            async with request.app["db_accessor"].get_connection() as conn:
+            async with request.app["state_repository"].db.get_connection() as conn:
                 request["conn"] = conn
                 return await handler(request)
         else:
-            async with request.app["db_accessor"].get_transaction() as conn_tx:
+            async with request.app["state_repository"].db.get_transaction() as conn_tx:
                 request["conn"] = conn_tx
                 return await handler(request)
 

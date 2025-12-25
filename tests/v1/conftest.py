@@ -4,7 +4,7 @@ from sqlalchemy import select, insert
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.repository.tables import Users
-from src.utils.security import hash_password
+from src.utils.security import hash_password, create_access_token
 
 
 async def check_create_user(connection_db: AsyncConnection, name: str):
@@ -18,9 +18,14 @@ def get_fake_data_register(get_fake: Faker) -> dict[str, str]:
 
 @pytest.fixture
 async def create_user(connection_db: AsyncConnection, get_fake_data_register):
-    await connection_db.execute(
+    return await connection_db.scalar(
         insert(Users).values(
             name=get_fake_data_register["name"],
             password=hash_password(get_fake_data_register["password"]),
-        )
+        ).returning(Users.c.id)
     )
+
+
+@pytest.fixture
+async def creat_token(create_user):
+    return create_access_token(create_user)

@@ -2,7 +2,7 @@ import dataclasses
 from dataclasses import fields, field
 from typing import ClassVar, Type
 
-from marshmallow import Schema, EXCLUDE
+from marshmallow import Schema, EXCLUDE, validates, ValidationError
 from marshmallow_dataclass import dataclass
 
 
@@ -34,3 +34,14 @@ class RegisterRequestSchema(BaseSchema):
 class LoginResponseSchema(BaseSchema):
     access_token: str = field(metadata=dict(required=True))
     token_type: str = field(metadata=dict(required=True))
+
+
+@dataclass
+class LogoutRequestSchema(BaseSchema):
+    Authorization: str = field(metadata=dict(required=True))
+
+    @validates("Authorization")
+    def validate_authorization_header(self, value):
+        if not value.startswith("Bearer "):
+            raise ValidationError("Invalid authorization header")
+        return value

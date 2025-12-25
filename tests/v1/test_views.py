@@ -23,3 +23,18 @@ async def test_login(client, connection_db, get_fake_data_register, create_user)
 async def test_login_is_unauthorized(client, connection_db, get_fake_data_register):
     resp = await client.post("/login", json=get_fake_data_register)
     assert resp.status == 401
+
+
+async def test_verify(client, connection_db, creat_token):
+    resp = await client.get("/verify", headers={"Authorization": f"Bearer {creat_token}"})
+    assert resp.status == 200
+
+
+async def test_verify_unauthorized(client, connection_db, get_fake):
+    resp = await client.get("/verify", headers={"Authorization": f"Bearer {get_fake.cryptocurrency_code()}"})
+    assert resp.status == 401
+
+
+async def test_logout(client, connection_db, creat_token):
+    resp = await client.delete("/logout", headers={"Authorization": f"Bearer {creat_token}"})
+    assert resp.status == 204

@@ -1,9 +1,18 @@
 from sqlalchemy.ext.asyncio import AsyncConnection
 
+from src.repository.base import UserRepository
 from src.repository.query.user import CreateUser, GetUserByName
 
 
-class UserRepository:
+class SqlAlchemyUserRepository(UserRepository):
     def __init__(self, connection: AsyncConnection):
-        self.create_user = CreateUser(connection)
-        self.get_user_by_name = GetUserByName(connection)
+        self._create_user = CreateUser(connection)
+        self._get_user_by_name = GetUserByName(connection)
+
+    @property
+    def create_user(self) -> CreateUser:
+        return self._create_user
+
+    @property
+    def get_user_by_name(self) -> GetUserByName:
+        return self._get_user_by_name

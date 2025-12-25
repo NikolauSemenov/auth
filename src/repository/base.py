@@ -1,24 +1,13 @@
-from contextlib import asynccontextmanager
-from typing import AsyncIterator
+from abc import ABC, abstractmethod
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncConnection
+from src.repository.query.user import CreateUser, GetUserByName
 
 
-class DbAccessor:
-    __slots__ = ("_engine",)
+class UserRepository(ABC):
+    @property
+    @abstractmethod
+    def create_user(self) -> CreateUser: ...
 
-    def __init__(self, postgres_dsn: str):
-        self._engine = create_async_engine(postgres_dsn)
-
-    async def close(self, _):
-        await self._engine.dispose()
-
-    @asynccontextmanager
-    async def get_connection(self) -> AsyncIterator[AsyncConnection]:
-        async with self._engine.connect() as connection:
-            yield connection
-
-    @asynccontextmanager
-    async def get_transaction(self) -> AsyncIterator[AsyncConnection]:
-        async with self._engine.begin() as connection_tx:
-            yield connection_tx
+    @property
+    @abstractmethod
+    def get_user_by_name(self) -> GetUserByName: ...

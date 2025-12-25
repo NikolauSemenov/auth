@@ -2,7 +2,7 @@ from aiohttp.web import Application
 from aiohttp_apigami import setup_aiohttp_apispec
 
 from src.config.settings import Settings
-from src.repository.base import DbAccessor
+from src.repository.state.state import AppStateRepository
 from src.web.middleware import Middleware
 from src.web.routes import setup_routes
 
@@ -19,8 +19,8 @@ def make_app(settings: Settings):
 
     setup_routes(app)
 
-    db_accessor = DbAccessor(settings.postgres_dsn.unicode_string())
-    app["db_accessor"] = db_accessor
-    app.on_shutdown.append(db_accessor.close)
+    state = AppStateRepository(settings)
+    app["state_repository"] = state
+    app.cleanup_ctx.append(state.lifespan)
 
     return app
