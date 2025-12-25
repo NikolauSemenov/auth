@@ -34,7 +34,7 @@ class LoginView(BaseViews):
     )
     @json_schema(schemas.RegisterRequestSchema.Schema())
     @response_schema(schemas.LoginResponseSchema.Schema, 200)
-    async def post(self):
+    async def get(self):
         return self.response(await self._service.login_user(self.request["json"]))
 
 

@@ -10,7 +10,7 @@ from src.schemas.auth import (
 from src.utils.security.base import SecurityToken
 
 
-class MutationUser:
+class User:
     __slots__ = ("_user_repository", "_black_list", "_security")
 
     def __init__(

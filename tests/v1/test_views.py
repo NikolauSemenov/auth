@@ -13,7 +13,7 @@ async def test_register_is_user_exists(client, get_fake_data_register, create_us
 
 
 async def test_login(client, connection_db, get_fake_data_register, create_user):
-    resp = await client.post("/login", json=get_fake_data_register)
+    resp = await client.get("/login", json=get_fake_data_register)
     assert resp.status == 200
     result = await resp.json()
     assert result["access_token"]
@@ -21,7 +21,7 @@ async def test_login(client, connection_db, get_fake_data_register, create_user)
 
 
 async def test_login_is_unauthorized(client, connection_db, get_fake_data_register):
-    resp = await client.post("/login", json=get_fake_data_register)
+    resp = await client.get("/login", json=get_fake_data_register)
     assert resp.status == 401
 
 
