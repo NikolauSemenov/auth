@@ -11,7 +11,15 @@ class PGAccessor(BaseRepository):
     __slots__ = ("_engine",)
 
     def __init__(self, postgres_dsn: str):
-        self._engine = create_async_engine(postgres_dsn)
+        self._engine = create_async_engine(
+            postgres_dsn,
+            echo=False,
+            pool_size=20,
+            max_overflow=10,
+            pool_timeout=30,
+            pool_recycle=1800,
+            pool_pre_ping=True,
+        )
 
     async def ping(self):
         try:

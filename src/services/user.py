@@ -48,7 +48,7 @@ class User:
             raise HTTPUnauthorized()
         return LoginResponseSchema(
             access_token=self._security.create_access_token(user_db.id),
-            token_type="bearer",
+            token_type="Bearer",
         )
 
     async def logout_user(self, data: LogoutRequestSchema):

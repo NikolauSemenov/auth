@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     secret_key: str = "SUPER_SECRET_KEY"
     algorithm: str = "HS256"
-    access_token_lifetime: timedelta = timedelta(minutes=2)
+    access_token_lifetime: timedelta = timedelta(minutes=20)
 
     @property
     def api_prefix(self) -> str:

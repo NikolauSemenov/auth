@@ -9,12 +9,9 @@ class CreateUser(UserBase):
     __slots__ = ("_connection",)
 
     async def __call__(self, name: str, password: str) -> int:
-        user_id = await self._connection.scalar(
+        return await self._connection.scalar(
             insert(Users).values(name=name, password=password).returning(Users.c.id)
         )
-        if user_id is None:
-            raise ValueError("Failed to create user")
-        return int(user_id)
 
 
 class GetUserByName(UserBase):

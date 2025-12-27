@@ -7,7 +7,7 @@ Users = Table(
     "users",
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("name", String, unique=True),
+    Column("name", String, unique=True, index=True),
     Column("password", String),
     Column("is_admin", Boolean, default=False),
     Column("is_active", Boolean, default=False),

@@ -176,6 +176,21 @@ webargs = ">=8.0.1,<9.0.0"
 dataclass = ["marshmallow-recipe (>=0.0.39,<1.0.0)"]
 
 [[package]]
+name = "aiohttp-cors"
+version = "0.8.1"
+description = "CORS support for aiohttp"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "aiohttp_cors-0.8.1-py3-none-any.whl", hash = "sha256:3180cf304c5c712d626b9162b195b1db7ddf976a2a25172b35bb2448b890a80d"},
+    {file = "aiohttp_cors-0.8.1.tar.gz", hash = "sha256:ccacf9cb84b64939ea15f859a146af1f662a6b1d68175754a07315e305fb1403"},
+]
+
+[package.dependencies]
+aiohttp = ">=3.9"
+
+[[package]]
 name = "aiosignal"
 version = "1.4.0"
 description = "aiosignal: a list of registered asynchronous callbacks"
@@ -2452,4 +2467,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "cbcd60f6ab17ecde8fba2dc129227936595f04322dc56d2e8d4da590944c4ee4"
+content-hash = "10e93e1a074ca7bbfaa82b3c5cc1fddb17b9bb86391454ff54098d909e76c2ff"
