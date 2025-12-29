@@ -2,6 +2,7 @@ import dataclasses
 from dataclasses import fields, field
 from typing import ClassVar, Type
 
+from marshmallow import fields as marshmallow_fields
 from marshmallow import Schema, EXCLUDE, validates, ValidationError
 from marshmallow_dataclass import dataclass
 
@@ -28,6 +29,9 @@ class BaseSchema(ClassSchema): ...
 class RegisterRequestSchema(BaseSchema):
     name: str = field(metadata=dict(required=True))
     password: str = field(metadata=dict(required=True))
+    email: str = field(
+        metadata=dict(marshmallow_field=marshmallow_fields.Email(), required=True)
+    )
 
 
 @dataclass

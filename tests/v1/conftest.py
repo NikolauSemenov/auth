@@ -8,12 +8,19 @@ from src.repository.tables import Users
 
 @pytest.fixture
 def get_fake_data_register(get_fake: Faker) -> dict[str, str]:
-    return {"name": get_fake.user_name(), "password": get_fake.password()}
+    return {
+        "name": get_fake.user_name(),
+        "password": get_fake.password(),
+        "email": get_fake.email(),
+    }
 
 
 @pytest.fixture
 async def create_user(
-    connection_db: AsyncConnection, get_fake_data_register, get_security_token
+    connection_db: AsyncConnection,
+    get_fake_data_register,
+    get_security_token,
+    get_fake,
 ):
     return await connection_db.scalar(
         insert(Users)
@@ -23,6 +30,7 @@ async def create_user(
                 get_fake_data_register["password"]
             ),
             is_active=False,
+            email=get_fake.email(),
         )
         .returning(Users.c.id)
     )
@@ -30,7 +38,7 @@ async def create_user(
 
 @pytest.fixture
 async def create_admin(
-    connection_db: AsyncConnection, get_fake_data_register, get_security_token
+    connection_db: AsyncConnection, get_fake_data_register, get_security_token, get_fake
 ):
     return await connection_db.scalar(
         insert(Users)
@@ -39,6 +47,7 @@ async def create_admin(
             password=get_security_token.hash_password(
                 get_fake_data_register["password"]
             ),
+            email=get_fake.email(),
             is_active=True,
             is_admin=True,
         )

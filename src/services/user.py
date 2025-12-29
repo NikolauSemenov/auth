@@ -39,6 +39,7 @@ class User:
             value={
                 "name": user.name,
                 "password": self._security.hash_password(user.password),
+                "email": user.email,
             }
         )
 
