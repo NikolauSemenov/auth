@@ -59,3 +59,18 @@ class LogoutRequestSchema(BaseSchema):
 @dataclass
 class GrantTokenRequestSchema(BaseSchema):
     user_id: int = field(metadata=dict(required=True))
+
+
+@dataclass
+class LoginEmailRequestSchema(BaseSchema):
+    email: str = field(
+        metadata=dict(marshmallow_field=marshmallow_fields.Email(), required=True)
+    )
+
+
+@dataclass
+class VerifyEmailRequestSchema(BaseSchema):
+    email: str = field(
+        metadata=dict(marshmallow_field=marshmallow_fields.Email(), required=True)
+    )
+    code: str = field(metadata=dict(required=True))

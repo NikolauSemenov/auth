@@ -11,5 +11,5 @@ class BaseProducer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def send(self, value: dict, key: str | None = None):
+    async def send(self, topic: str, value: dict, key: str | None = None):
         raise NotImplementedError()

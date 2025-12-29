@@ -1,3 +1,6 @@
+import json
+import secrets
+
 from aiohttp.web_exceptions import (
     HTTPConflict,
     HTTPUnauthorized,
@@ -5,6 +8,7 @@ from aiohttp.web_exceptions import (
     HTTPNotFound,
 )
 
+from src.config.settings import Settings
 from src.infrastructure.broker.base import BaseProducer
 from src.repository.cache.base import Cache
 from src.repository.base import UserRepository
@@ -13,32 +17,41 @@ from src.schemas.auth import (
     LoginResponseSchema,
     LogoutRequestSchema,
     GrantTokenRequestSchema,
+    LoginEmailRequestSchema, VerifyEmailRequestSchema,
 )
 from src.utils.security.base import SecurityToken
+from src.utils.security.hash_code import encrypt_code, decrypt_code
 
 
 class User:
-    __slots__ = ("_user_repository", "_black_list", "_security", "_broker")
+    __slots__ = ("_user_repository", "_user_cache", "_security", "_broker", "_settings")
 
     def __init__(
         self,
         user_repository: UserRepository,
-        black_list: Cache,
+        user_cache: Cache,
         security: SecurityToken,
         broker: BaseProducer,
+        settings: Settings,
     ):
         self._user_repository = user_repository
-        self._black_list = black_list
+        self._user_cache = user_cache
         self._security = security
         self._broker = broker
+        self._settings = settings
 
     async def create_user(self, user: RegisterRequestSchema) -> None:
         if await self._user_repository.get_user_by_name(user.name):
             raise HTTPConflict(text="User with that name already exists")
+        if await self._user_repository.get_user_by_email(user.email):
+            raise HTTPConflict(text="User with that email already exists")
         await self._user_repository.create_user(
             dict(name=user.name, password=user.password, email=user.email)
         )
-        await self._broker.send(value=dict(name=user.name, email=user.email))
+        await self._broker.send(
+            topic=self._settings.topic_create_user,
+            value=dict(name=user.name, email=user.email),
+        )
 
     async def login_user(self, user: RegisterRequestSchema) -> LoginResponseSchema:
         user_db = await self._user_repository.get_user_by_name(user.name)
@@ -59,11 +72,11 @@ class User:
             ttl = self._security.get_token_ttl(token)
         except ValueError:
             return
-        await self._black_list.add(token, "1", ttl)
+        await self._user_cache.add(f"black-token:{token}", "1", ttl)
 
     async def verify_user(self, data: LogoutRequestSchema):
         token = data.Authorization.split(" ")[1]
-        if await self._black_list.get(token):
+        if await self._user_cache.get(f"black-token:{token}"):
             raise HTTPUnauthorized()
 
         is_verify = self._security.verify_access_token(data.Authorization.split(" ")[1])
@@ -88,3 +101,53 @@ class User:
             raise HTTPNotFound(text="Target user not found")
 
         await self._user_repository.set_token_permission(data.user_id)
+
+    async def send_email_code(self, data: LoginEmailRequestSchema):
+        user = await self._user_repository.get_user_by_email(data.email)
+
+        if not user:
+            raise HTTPNotFound(text="User not found")
+        if not user.is_active:
+            raise HTTPUnauthorized(text="User is not active")
+
+        hash_code = encrypt_code(
+            "".join(secrets.choice("0123456789") for _ in range(12))
+        )
+        await self._user_cache.add(
+            f"auth:code:{data.email}",
+            json.dumps({"hash_code": hash_code, "try": 0}),
+            int(self._settings.ttl_email_code_life.total_seconds()),
+        )
+
+        await self._broker.send(
+            topic=self._settings.topic_verify_email,
+            value=dict(name=user.name, email=user.email, code=hash_code),
+        )
+
+    async def verify_email_code(self, data: VerifyEmailRequestSchema) -> LoginResponseSchema:
+        byte_data = await self._user_cache.get(f"auth:code:{data.email}")
+        if not byte_data:
+            raise HTTPUnauthorized(text="Invalid or expired token")
+
+        cache_data = json.loads(byte_data.decode())
+
+        if cache_data["try"] >= 3:
+            raise HTTPForbidden(text="Try again later")
+
+        code = decrypt_code(cache_data["hash_code"])
+        if code != data.code:
+            cache_data["try"] += 1
+            await self._user_cache.add(
+                f"auth:code:{data.email}",
+                json.dumps(cache_data),
+                int(self._settings.ttl_email_code_life.total_seconds()),
+            )
+            raise HTTPUnauthorized(text="Invalid code")
+
+        user = await self._user_repository.get_user_by_email(data.email)
+        if not user:
+            raise HTTPNotFound(text="User not found")
+        return LoginResponseSchema(
+            access_token=self._security.create_access_token(user.id),
+            token_type="Bearer",
+        )

@@ -9,3 +9,5 @@ def create_v1_routes(app: Application, prefix: str):
     app.router.add_view(rf"{prefix}/logout", views.LogoutView)
     app.router.add_view(rf"{prefix}/verify", views.VerifyUserView)
     app.router.add_view(rf"{prefix}/grand-token", views.GrantTokenView)
+    app.router.add_view(rf"{prefix}/send-email-code", views.LoginEmailView)
+    app.router.add_view(rf"{prefix}/verify-email-code", views.VerifyEmailView)

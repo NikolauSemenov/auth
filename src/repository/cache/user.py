@@ -7,7 +7,7 @@ from src.repository.cache.base import Cache
 T = TypeVar("T", str, bytes)
 
 
-class BlackToken(Cache[T]):
+class UserCache(Cache[T]):
     __slots__ = ("_rdb",)
 
     def __init__(self, rdb: Redis):

@@ -17,12 +17,15 @@ class Settings(BaseSettings):
     postgres_dsn: PostgresDsn
     redis_dsn: RedisDsn
 
-    secret_key: str = "SUPER_SECRET_KEY"
-    algorithm: str = "HS256"
+    secret_key: str
+    algorithm: str
     access_token_lifetime: timedelta = timedelta(minutes=20)
 
     kafka_bootstrap_servers: str = "localhost:29092"
-    kafka_topic: str = "user_for_register"
+    topic_create_user: str = "user_for_register_events"
+    topic_verify_email: str = "verify_email_events"
+    ttl_email_code_life: timedelta = timedelta(minutes=3)
+    email_secret_code: str
 
     @property
     def api_prefix(self) -> str:

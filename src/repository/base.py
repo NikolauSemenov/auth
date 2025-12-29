@@ -5,6 +5,7 @@ from src.repository.query.user import (
     GetUserByName,
     GetUserById,
     UpdateUserActive,
+    GetUserByEmail,
 )
 
 
@@ -16,6 +17,10 @@ class UserRepository(ABC):
     @property
     @abstractmethod
     def get_user_by_name(self) -> GetUserByName: ...
+
+    @property
+    @abstractmethod
+    def get_user_by_email(self) -> GetUserByEmail: ...
 
     @property
     @abstractmethod

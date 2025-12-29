@@ -37,10 +37,30 @@ async def create_user(
 
 
 @pytest.fixture
+async def create_uniq_user(
+    connection_db: AsyncConnection,
+    get_security_token,
+    get_fake,
+):
+    result = await connection_db.execute(
+        insert(Users)
+        .values(
+            name=get_fake.user_name(),
+            password=get_security_token.hash_password(
+                get_fake.password()
+            ),
+            email=get_fake.email(),
+        )
+        .returning(Users)
+    )
+    return result.fetchone()
+
+
+@pytest.fixture
 async def create_admin(
     connection_db: AsyncConnection, get_fake_data_register, get_security_token, get_fake
 ):
-    return await connection_db.scalar(
+    result = await connection_db.execute(
         insert(Users)
         .values(
             name=get_fake_data_register["name"],
@@ -51,8 +71,9 @@ async def create_admin(
             is_active=True,
             is_admin=True,
         )
-        .returning(Users.c.id)
+        .returning(Users)
     )
+    return result.fetchone()
 
 
 @pytest.fixture
@@ -62,4 +83,4 @@ async def creat_token(create_user, get_security_token):
 
 @pytest.fixture
 async def creat_token_admin(create_admin, get_security_token):
-    return get_security_token.create_access_token(create_admin)
+    return get_security_token.create_access_token(create_admin.id)

@@ -24,6 +24,16 @@ class GetUserByName(UserBase):
         return result.fetchone()
 
 
+class GetUserByEmail(UserBase):
+    __slots__ = ("_connection",)
+
+    async def __call__(self, email: str) -> Row[Any] | None:
+        result = await self._connection.execute(
+            select(Users).where(Users.c.email == email)
+        )
+        return result.fetchone()
+
+
 class GetUserById(UserBase):
     __slots__ = ("_connection",)
 

@@ -6,6 +6,7 @@ from src.repository.query.user import (
     GetUserByName,
     GetUserById,
     UpdateUserActive,
+    GetUserByEmail,
 )
 
 
@@ -17,6 +18,7 @@ class SqlAlchemyUserRepository(UserRepository):
         self._get_user_by_name = GetUserByName(connection)
         self._get_user_by_id = GetUserById(connection)
         self._set_token_permission = UpdateUserActive(connection)
+        self._get_user_by_email = GetUserByEmail(connection)
 
     @property
     def create_user(self) -> CreateUser:
@@ -25,6 +27,10 @@ class SqlAlchemyUserRepository(UserRepository):
     @property
     def get_user_by_name(self) -> GetUserByName:
         return self._get_user_by_name
+
+    @property
+    def get_user_by_email(self) -> GetUserByEmail:
+        return self._get_user_by_email
 
     @property
     def get_user_by_id(self) -> GetUserById:

@@ -3,7 +3,7 @@ from aiohttp.abc import Request
 from aiohttp.web_response import Response
 
 from src.config.settings import settings
-from src.repository.cache.black_token import BlackToken
+from src.repository.cache.user import UserCache
 from src.repository.repository import SqlAlchemyUserRepository
 from src.schemas.auth import BaseSchema
 from src.services.user import User
@@ -19,9 +19,10 @@ class BaseViews(web.View):
             raise RuntimeError("StateApp missing in BaseViews")
         self._service = User(
             SqlAlchemyUserRepository(request["conn"]),
-            BlackToken(state.state_repo.cache),
+            UserCache(state.state_repo.cache),
             JwtSecurity(settings),
             state.state_infra.producer,
+            settings,
         )
 
     @staticmethod

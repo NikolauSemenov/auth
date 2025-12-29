@@ -24,8 +24,8 @@ class RegisterView(BaseViews):
 
 class LoginView(BaseViews):
     @docs(
-        tags=["Auth"],
-        summary="Аутентификация",
+        tags=["Authentication"],
+        summary="Аутентификация по логину и паролю",
         responses={
             401: {"description": "Unauthorized"},
             404: {"description": "Not found"},
@@ -39,9 +39,45 @@ class LoginView(BaseViews):
         return self.response(await self._service.login_user(self.request["json"]))
 
 
+class LoginEmailView(BaseViews):
+    @docs(
+        tags=["Authentication"],
+        summary="Отправка кода на email",
+        responses={
+            200: {"description": "OK"},
+            401: {"description": "Unauthorized"},
+            404: {"description": "Not found"},
+            422: {"description": "Unprocessable Entity"},
+            503: {"description": "Service Unavailable"},
+        },
+    )
+    @json_schema(schemas.LoginEmailRequestSchema.Schema())
+    async def post(self):
+        await self._service.send_email_code(self.request["json"])
+        return HTTPOk()
+
+
+class VerifyEmailView(BaseViews):
+    @docs(
+        tags=["Authentication"],
+        summary="Аутентификация по email",
+        responses={
+            404: {"description": "Not found"},
+            422: {"description": "Unprocessable Entity"},
+            503: {"description": "Service Unavailable"},
+        },
+    )
+    @json_schema(schemas.VerifyEmailRequestSchema.Schema())
+    @response_schema(schemas.LoginResponseSchema.Schema, 200)
+    async def put(self):
+        return self.response(
+            await self._service.verify_email_code(self.request["json"])
+        )
+
+
 class VerifyUserView(BaseViews):
     @docs(
-        tags=["Auth"],
+        tags=["Authentication"],
         summary="Проверка токена",
         responses={
             200: {"description": "Token valid"},

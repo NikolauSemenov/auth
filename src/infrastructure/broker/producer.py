@@ -8,10 +8,8 @@ class KafkaProducer(BaseProducer):
     def __init__(
         self,
         bootstrap_servers: str,
-        topic: str,
     ):
         self._bootstrap_servers = bootstrap_servers
-        self._topic = topic
         self._producer: AIOKafkaProducer | None = None
 
     async def start(self) -> None:
@@ -28,13 +26,14 @@ class KafkaProducer(BaseProducer):
 
     async def send(
         self,
+        topic: str,
         value: dict,
         key: str | None = None,
     ) -> None:
         if not self._producer:
             raise RuntimeError("Producer not started")
         await self._producer.send_and_wait(
-            topic=self._topic,
+            topic=topic,
             value=value,
             key=key,
         )

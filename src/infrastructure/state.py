@@ -6,9 +6,7 @@ from src.infrastructure.broker.producer import KafkaProducer
 
 class AppStateInfrastructure(StateInfrastructure):
     def __init__(self, settings: Settings):
-        self._producer = KafkaProducer(
-            settings.kafka_bootstrap_servers, settings.kafka_topic
-        )
+        self._producer = KafkaProducer(settings.kafka_bootstrap_servers)
 
     async def __aenter__(self):
         await self._producer.start()
