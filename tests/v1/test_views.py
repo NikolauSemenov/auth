@@ -1,10 +1,6 @@
-from tests.v1.conftest import check_create_user
-
-
 async def test_register(client, get_prefix_v1, connection_db, get_fake_data_register):
     resp = await client.post(f"{get_prefix_v1}/register", json=get_fake_data_register)
     assert resp.status == 201
-    assert await check_create_user(connection_db, get_fake_data_register["name"])
 
 
 async def test_register_is_user_exists(
@@ -14,7 +10,7 @@ async def test_register_is_user_exists(
     assert resp.status == 409
 
 
-async def test_login(client, get_prefix_v1, get_fake_data_register, create_user):
+async def test_login(client, get_prefix_v1, get_fake_data_register, create_admin):
     resp = await client.post(f"{get_prefix_v1}/login", json=get_fake_data_register)
     assert resp.status == 200
     result = await resp.json()
@@ -22,7 +18,14 @@ async def test_login(client, get_prefix_v1, get_fake_data_register, create_user)
     assert result["token_type"]
 
 
-async def test_login_is_unauthorized(client, get_prefix_v1, get_fake_data_register):
+async def test_login_is_not_found(client, get_prefix_v1, get_fake_data_register):
+    resp = await client.post(f"{get_prefix_v1}/login", json=get_fake_data_register)
+    assert resp.status == 404
+
+
+async def test_login_is_unauthorized(
+    client, get_prefix_v1, get_fake_data_register, create_user
+):
     resp = await client.post(f"{get_prefix_v1}/login", json=get_fake_data_register)
     assert resp.status == 401
 

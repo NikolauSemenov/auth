@@ -5,6 +5,7 @@ from aiohttp.web_exceptions import (
     HTTPNotFound,
 )
 
+from src.infrastructure.broker.base import BaseProducer
 from src.repository.cache.base import Cache
 from src.repository.base import UserRepository
 from src.schemas.auth import (
@@ -12,38 +13,41 @@ from src.schemas.auth import (
     LoginResponseSchema,
     LogoutRequestSchema,
     GrantTokenRequestSchema,
-    RegisterResponseSchema,
 )
 from src.utils.security.base import SecurityToken
 
 
 class User:
-    __slots__ = ("_user_repository", "_black_list", "_security")
+    __slots__ = ("_user_repository", "_black_list", "_security", "_broker")
 
     def __init__(
         self,
         user_repository: UserRepository,
         black_list: Cache,
         security: SecurityToken,
+        broker: BaseProducer,
     ):
         self._user_repository = user_repository
         self._black_list = black_list
         self._security = security
+        self._broker = broker
 
-    async def create_user(self, user: RegisterRequestSchema) -> RegisterResponseSchema:
+    async def create_user(self, user: RegisterRequestSchema) -> None:
         if await self._user_repository.get_user_by_name(user.name):
             raise HTTPConflict(text="User with that name already exists")
-        result = await self._user_repository.create_user(
-            user.name, self._security.hash_password(user.password)
+        await self._broker.send(
+            value={
+                "name": user.name,
+                "password": self._security.hash_password(user.password),
+            }
         )
-        return RegisterResponseSchema(user_id=result)
 
     async def login_user(self, user: RegisterRequestSchema) -> LoginResponseSchema:
         user_db = await self._user_repository.get_user_by_name(user.name)
-        if (
-            not user_db
-            or not user_db.is_active
-            or not self._security.verify_password(user.password, user_db.password)
+        if not user_db:
+            raise HTTPNotFound(text="User not found")
+        if not user_db.is_active or not self._security.verify_password(
+            user.password, user_db.password
         ):
             raise HTTPUnauthorized()
         return LoginResponseSchema(

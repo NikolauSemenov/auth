@@ -13,10 +13,12 @@ class AppStateRepository(StateRepository[PGAccessor, Redis]):
         self._db = PGAccessor(settings.postgres_dsn.unicode_string())
         self._cache_accessor = RdAccessor(settings.redis_dsn.unicode_string())
 
-    async def lifespan(self, _):
+    async def __aenter__(self):
         await self._db.ping()
         await self._cache_accessor.ping()
-        yield
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self._db.close()
         await self._cache_accessor.close()
 

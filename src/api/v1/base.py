@@ -8,15 +8,20 @@ from src.repository.repository import SqlAlchemyUserRepository
 from src.schemas.auth import BaseSchema
 from src.services.user import User
 from src.utils.security.jwt import JwtSecurity
+from src.web.state_app import StateApp
 
 
 class BaseViews(web.View):
     def __init__(self, request: Request):
         super().__init__(request)
+        state: StateApp = request.app.get("state_app")
+        if not state:
+            raise RuntimeError("StateApp missing in BaseViews")
         self._service = User(
             SqlAlchemyUserRepository(request["conn"]),
-            BlackToken(request.app["state_repository"].cache),
+            BlackToken(state.state_repo.cache),
             JwtSecurity(settings),
+            state.state_infra.producer,
         )
 
     @staticmethod

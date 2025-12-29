@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_lifetime: timedelta = timedelta(minutes=20)
 
+    kafka_bootstrap_servers: str = "localhost:29092"
+    kafka_topic: str = "user_for_register"
+
     @property
     def api_prefix(self) -> str:
         return f"/{self.project_name}/api"

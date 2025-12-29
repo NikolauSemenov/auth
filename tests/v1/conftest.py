@@ -1,13 +1,9 @@
 import pytest
 from faker import Faker
-from sqlalchemy import select, insert
+from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from src.repository.tables import Users
-
-
-async def check_create_user(connection_db: AsyncConnection, name: str):
-    return await connection_db.scalar(select(Users).where(Users.c.name == name))
 
 
 @pytest.fixture
@@ -26,7 +22,7 @@ async def create_user(
             password=get_security_token.hash_password(
                 get_fake_data_register["password"]
             ),
-            is_active=True,
+            is_active=False,
         )
         .returning(Users.c.id)
     )

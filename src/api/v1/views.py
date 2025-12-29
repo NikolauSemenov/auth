@@ -1,4 +1,4 @@
-from aiohttp.web_exceptions import HTTPNoContent, HTTPOk
+from aiohttp.web_exceptions import HTTPNoContent, HTTPOk, HTTPCreated
 from aiohttp_apigami import docs, json_schema, response_schema, headers_schema
 
 from src.api.v1.base import BaseViews
@@ -10,15 +10,16 @@ class RegisterView(BaseViews):
         tags=["Auth"],
         summary="Регистрация",
         responses={
+            201: {"description": "OK"},
             409: {"description": "Exists"},
             422: {"description": "Unprocessable Entity"},
             503: {"description": "Service Unavailable"},
         },
     )
     @json_schema(schemas.RegisterRequestSchema.Schema())
-    @response_schema(schemas.RegisterResponseSchema.Schema, 201)
     async def post(self):
-        return self.response(await self._service.create_user(self.request["json"]), 201)
+        await self._service.create_user(self.request["json"])
+        return HTTPCreated()
 
 
 class LoginView(BaseViews):
@@ -27,6 +28,7 @@ class LoginView(BaseViews):
         summary="Аутентификация",
         responses={
             401: {"description": "Unauthorized"},
+            404: {"description": "Not found"},
             422: {"description": "Unprocessable Entity"},
             503: {"description": "Service Unavailable"},
         },
