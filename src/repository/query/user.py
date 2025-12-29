@@ -8,9 +8,9 @@ from src.repository.tables import Users
 class CreateUser(UserBase):
     __slots__ = ("_connection",)
 
-    async def __call__(self, name: str, password: str) -> int | None:
+    async def __call__(self, user_data: dict[str, str]) -> int | None:
         return await self._connection.scalar(
-            insert(Users).values(name=name, password=password).returning(Users.c.id)
+            insert(Users).values(user_data).returning(Users.c.id)
         )
 
 

@@ -35,13 +35,10 @@ class User:
     async def create_user(self, user: RegisterRequestSchema) -> None:
         if await self._user_repository.get_user_by_name(user.name):
             raise HTTPConflict(text="User with that name already exists")
-        await self._broker.send(
-            value={
-                "name": user.name,
-                "password": self._security.hash_password(user.password),
-                "email": user.email,
-            }
+        await self._user_repository.create_user(
+            dict(name=user.name, password=user.password, email=user.email)
         )
+        await self._broker.send(value=dict(name=user.name, email=user.email))
 
     async def login_user(self, user: RegisterRequestSchema) -> LoginResponseSchema:
         user_db = await self._user_repository.get_user_by_name(user.name)
