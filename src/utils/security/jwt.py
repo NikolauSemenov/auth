@@ -48,7 +48,7 @@ class JwtSecurity(SecurityToken):
             )
         except JWTError:
             return None
-        if  payload.get("type") == "access":
+        if payload.get("type") == "access":
             return payload.get("sub")
         return None
 

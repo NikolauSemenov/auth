@@ -83,7 +83,9 @@ async def test_grand_token_is_unauthorized(
     assert resp.status == 401
 
 
-async def test_send_code_by_email(client, get_prefix_v1, creat_token_admin, create_admin):
+async def test_send_code_by_email(
+    client, get_prefix_v1, creat_token_admin, create_admin
+):
     resp = await client.post(
         f"{get_prefix_v1}/send-email-code",
         json={"email": create_admin.email},
@@ -91,7 +93,9 @@ async def test_send_code_by_email(client, get_prefix_v1, creat_token_admin, crea
     assert resp.status == 200
 
 
-async def test_send_code_by_email_not_found(client, get_prefix_v1, creat_token_admin, get_fake):
+async def test_send_code_by_email_not_found(
+    client, get_prefix_v1, creat_token_admin, get_fake
+):
     resp = await client.post(
         f"{get_prefix_v1}/send-email-code",
         json={"email": get_fake.email()},
@@ -99,7 +103,9 @@ async def test_send_code_by_email_not_found(client, get_prefix_v1, creat_token_a
     assert resp.status == 404
 
 
-async def test_send_code_by_email_not_active(client, get_prefix_v1, creat_token_admin, create_uniq_user):
+async def test_send_code_by_email_not_active(
+    client, get_prefix_v1, creat_token_admin, create_uniq_user
+):
     resp = await client.post(
         f"{get_prefix_v1}/send-email-code",
         json={"email": create_uniq_user.email},
@@ -107,7 +113,9 @@ async def test_send_code_by_email_not_active(client, get_prefix_v1, creat_token_
     assert resp.status == 401
 
 
-async def test_verify_code_by_email_not_token(client, get_prefix_v1, creat_token_admin, create_uniq_user):
+async def test_verify_code_by_email_not_token(
+    client, get_prefix_v1, creat_token_admin, create_uniq_user
+):
     resp = await client.post(
         f"{get_prefix_v1}/send-email-code",
         json={"email": create_uniq_user.email},

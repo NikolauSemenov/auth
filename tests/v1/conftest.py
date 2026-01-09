@@ -9,9 +9,11 @@ from src.repository.tables import Users
 @pytest.fixture
 def get_fake_data_register(get_fake: Faker) -> dict[str, str]:
     return {
-        "name": get_fake.user_name(),
+        "login": get_fake.user_name(),
         "password": get_fake.password(),
         "email": get_fake.email(),
+        "user_name": get_fake.user_name(),
+        "last_name": get_fake.last_name(),
     }
 
 
@@ -25,7 +27,9 @@ async def create_user(
     return await connection_db.scalar(
         insert(Users)
         .values(
-            name=get_fake_data_register["name"],
+            user_name=get_fake.user_name(),
+            last_name=get_fake.last_name(),
+            login=get_fake_data_register["login"],
             password=get_security_token.hash_password(
                 get_fake_data_register["password"]
             ),
@@ -45,10 +49,10 @@ async def create_uniq_user(
     result = await connection_db.execute(
         insert(Users)
         .values(
-            name=get_fake.user_name(),
-            password=get_security_token.hash_password(
-                get_fake.password()
-            ),
+            user_name=get_fake.user_name(),
+            last_name=get_fake.last_name(),
+            login=get_fake.name(),
+            password=get_security_token.hash_password(get_fake.password()),
             email=get_fake.email(),
         )
         .returning(Users)
@@ -63,7 +67,9 @@ async def create_admin(
     result = await connection_db.execute(
         insert(Users)
         .values(
-            name=get_fake_data_register["name"],
+            user_name=get_fake.user_name(),
+            last_name=get_fake.last_name(),
+            login=get_fake_data_register["login"],
             password=get_security_token.hash_password(
                 get_fake_data_register["password"]
             ),

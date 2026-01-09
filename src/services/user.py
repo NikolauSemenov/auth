@@ -17,7 +17,10 @@ from src.schemas.auth import (
     LoginResponseSchema,
     LogoutRequestSchema,
     GrantTokenRequestSchema,
-    LoginEmailRequestSchema, VerifyEmailRequestSchema, LoginRequestSchema, VerifyResponseSchema,
+    LoginEmailRequestSchema,
+    VerifyEmailRequestSchema,
+    LoginRequestSchema,
+    VerifyResponseSchema,
 )
 from src.utils.security.base import SecurityToken
 from src.utils.security.hash_code import encrypt_code, decrypt_code
@@ -46,7 +49,13 @@ class User:
         if await self._user_repository.get_user_by_email(user.email):
             raise HTTPConflict(text="User with that email already exists")
         await self._user_repository.create_user(
-            dict(login=user.login, user_name=user.user_name, last_name=user.last_name, password=self._security.hash_password(user.password), email=user.email)
+            dict(
+                login=user.login,
+                user_name=user.user_name,
+                last_name=user.last_name,
+                password=self._security.hash_password(user.password),
+                email=user.email,
+            )
         )
         await self._broker.send(
             topic=self._settings.topic_create_user,
@@ -81,7 +90,9 @@ class User:
         if await self._user_cache.get(f"black-token:{token}"):
             raise HTTPUnauthorized()
 
-        verify_data = self._security.verify_access_token(data.Authorization.split(" ")[1])
+        verify_data = self._security.verify_access_token(
+            data.Authorization.split(" ")[1]
+        )
         if not verify_data:
             raise HTTPUnauthorized()
         return VerifyResponseSchema(user_id=verify_data)
@@ -115,9 +126,7 @@ class User:
 
         bb = "".join(secrets.choice("0123456789") for _ in range(12))
         print(bb)
-        hash_code = encrypt_code(
-            bb
-        )
+        hash_code = encrypt_code(bb)
         await self._user_cache.add(
             f"auth:code:{data.email}",
             json.dumps({"hash_code": hash_code, "try": 0}),
@@ -129,7 +138,9 @@ class User:
             value=dict(login=user.login, email=user.email, code=hash_code),
         )
 
-    async def verify_email_code(self, data: VerifyEmailRequestSchema) -> LoginResponseSchema:
+    async def verify_email_code(
+        self, data: VerifyEmailRequestSchema
+    ) -> LoginResponseSchema:
         byte_data = await self._user_cache.get(f"auth:code:{data.email}")
         if not byte_data:
             raise HTTPUnauthorized(text="Invalid or expired token")
