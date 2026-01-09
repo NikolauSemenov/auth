@@ -27,11 +27,19 @@ class BaseSchema(ClassSchema): ...
 
 @dataclass
 class RegisterRequestSchema(BaseSchema):
-    name: str = field(metadata=dict(required=True))
+    login: str = field(metadata=dict(required=True))
+    user_name: str = field(metadata=dict(required=True))
+    last_name: str = field(metadata=dict(required=True))
     password: str = field(metadata=dict(required=True))
     email: str = field(
         metadata=dict(marshmallow_field=marshmallow_fields.Email(), required=True)
     )
+
+
+@dataclass
+class LoginRequestSchema(BaseSchema):
+    login: str = field(metadata=dict(required=True))
+    password: str = field(metadata=dict(required=True))
 
 
 @dataclass
@@ -41,8 +49,15 @@ class RegisterResponseSchema(BaseSchema):
 
 @dataclass
 class LoginResponseSchema(BaseSchema):
+    user_name: str = field(metadata=dict(required=True))
+    last_name: str = field(metadata=dict(required=True))
     access_token: str = field(metadata=dict(required=True))
     token_type: str = field(metadata=dict(required=True))
+
+
+@dataclass
+class VerifyResponseSchema(BaseSchema):
+    user_id: str = field(metadata=dict(required=True))
 
 
 @dataclass

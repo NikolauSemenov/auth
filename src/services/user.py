@@ -17,7 +17,7 @@ from src.schemas.auth import (
     LoginResponseSchema,
     LogoutRequestSchema,
     GrantTokenRequestSchema,
-    LoginEmailRequestSchema, VerifyEmailRequestSchema,
+    LoginEmailRequestSchema, VerifyEmailRequestSchema, LoginRequestSchema, VerifyResponseSchema,
 )
 from src.utils.security.base import SecurityToken
 from src.utils.security.hash_code import encrypt_code, decrypt_code
@@ -41,20 +41,20 @@ class User:
         self._settings = settings
 
     async def create_user(self, user: RegisterRequestSchema) -> None:
-        if await self._user_repository.get_user_by_name(user.name):
+        if await self._user_repository.get_user_by_login(user.login):
             raise HTTPConflict(text="User with that name already exists")
         if await self._user_repository.get_user_by_email(user.email):
             raise HTTPConflict(text="User with that email already exists")
         await self._user_repository.create_user(
-            dict(name=user.name, password=user.password, email=user.email)
+            dict(login=user.login, user_name=user.user_name, last_name=user.last_name, password=self._security.hash_password(user.password), email=user.email)
         )
         await self._broker.send(
             topic=self._settings.topic_create_user,
-            value=dict(name=user.name, email=user.email),
+            value=dict(login=user.login, email=user.email),
         )
 
-    async def login_user(self, user: RegisterRequestSchema) -> LoginResponseSchema:
-        user_db = await self._user_repository.get_user_by_name(user.name)
+    async def login_user(self, user: LoginRequestSchema) -> LoginResponseSchema:
+        user_db = await self._user_repository.get_user_by_login(user.login)
         if not user_db:
             raise HTTPNotFound(text="User not found")
         if not user_db.is_active or not self._security.verify_password(
@@ -64,6 +64,8 @@ class User:
         return LoginResponseSchema(
             access_token=self._security.create_access_token(user_db.id),
             token_type="Bearer",
+            user_name=user_db.user_name,
+            last_name=user_db.last_name,
         )
 
     async def logout_user(self, data: LogoutRequestSchema):
@@ -74,14 +76,15 @@ class User:
             return
         await self._user_cache.add(f"black-token:{token}", "1", ttl)
 
-    async def verify_user(self, data: LogoutRequestSchema):
+    async def verify_user(self, data: LogoutRequestSchema) -> VerifyResponseSchema:
         token = data.Authorization.split(" ")[1]
         if await self._user_cache.get(f"black-token:{token}"):
             raise HTTPUnauthorized()
 
-        is_verify = self._security.verify_access_token(data.Authorization.split(" ")[1])
-        if not is_verify:
+        verify_data = self._security.verify_access_token(data.Authorization.split(" ")[1])
+        if not verify_data:
             raise HTTPUnauthorized()
+        return VerifyResponseSchema(user_id=verify_data)
 
     async def grant_token_permission(
         self, data: GrantTokenRequestSchema, headers: LogoutRequestSchema
@@ -110,8 +113,10 @@ class User:
         if not user.is_active:
             raise HTTPUnauthorized(text="User is not active")
 
+        bb = "".join(secrets.choice("0123456789") for _ in range(12))
+        print(bb)
         hash_code = encrypt_code(
-            "".join(secrets.choice("0123456789") for _ in range(12))
+            bb
         )
         await self._user_cache.add(
             f"auth:code:{data.email}",
@@ -121,7 +126,7 @@ class User:
 
         await self._broker.send(
             topic=self._settings.topic_verify_email,
-            value=dict(name=user.name, email=user.email, code=hash_code),
+            value=dict(login=user.login, email=user.email, code=hash_code),
         )
 
     async def verify_email_code(self, data: VerifyEmailRequestSchema) -> LoginResponseSchema:
@@ -150,4 +155,6 @@ class User:
         return LoginResponseSchema(
             access_token=self._security.create_access_token(user.id),
             token_type="Bearer",
+            last_name=user.last_name,
+            user_name=user.user_name,
         )

@@ -39,16 +39,18 @@ class JwtSecurity(SecurityToken):
             algorithm=self._settings.algorithm,
         )
 
-    def verify_access_token(self, token: str) -> bool:
+    def verify_access_token(self, token: str) -> str | None:
         try:
             payload = jwt.decode(
                 token,
                 self._settings.secret_key,
                 algorithms=[self._settings.algorithm],
             )
-            return payload.get("type") == "access"
         except JWTError:
-            return False
+            return None
+        if  payload.get("type") == "access":
+            return payload.get("sub")
+        return None
 
     def get_token_ttl(self, token: str) -> int:
         try:

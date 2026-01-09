@@ -14,12 +14,12 @@ class CreateUser(UserBase):
         )
 
 
-class GetUserByName(UserBase):
+class GetUserByLogin(UserBase):
     __slots__ = ("_connection",)
 
-    async def __call__(self, name: str) -> Row[Any] | None:
+    async def __call__(self, login: str) -> Row[Any] | None:
         result = await self._connection.execute(
-            select(Users).where(Users.c.name == name)
+            select(Users).where(Users.c.login == login)
         )
         return result.fetchone()
 

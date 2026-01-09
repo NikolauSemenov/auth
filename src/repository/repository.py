@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 from src.repository.base import UserRepository
 from src.repository.query.user import (
     CreateUser,
-    GetUserByName,
+    GetUserByLogin,
     GetUserById,
     UpdateUserActive,
     GetUserByEmail,
@@ -15,7 +15,7 @@ class SqlAlchemyUserRepository(UserRepository):
 
     def __init__(self, connection: AsyncConnection):
         self._create_user = CreateUser(connection)
-        self._get_user_by_name = GetUserByName(connection)
+        self._get_user_by_login = GetUserByLogin(connection)
         self._get_user_by_id = GetUserById(connection)
         self._set_token_permission = UpdateUserActive(connection)
         self._get_user_by_email = GetUserByEmail(connection)
@@ -25,8 +25,8 @@ class SqlAlchemyUserRepository(UserRepository):
         return self._create_user
 
     @property
-    def get_user_by_name(self) -> GetUserByName:
-        return self._get_user_by_name
+    def get_user_by_login(self) -> GetUserByLogin:
+        return self._get_user_by_login
 
     @property
     def get_user_by_email(self) -> GetUserByEmail:

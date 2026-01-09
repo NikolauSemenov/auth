@@ -33,7 +33,7 @@ class LoginView(BaseViews):
             503: {"description": "Service Unavailable"},
         },
     )
-    @json_schema(schemas.RegisterRequestSchema.Schema())
+    @json_schema(schemas.LoginRequestSchema.Schema())
     @response_schema(schemas.LoginResponseSchema.Schema, 200)
     async def post(self):
         return self.response(await self._service.login_user(self.request["json"]))
@@ -85,9 +85,9 @@ class VerifyUserView(BaseViews):
         },
     )
     @headers_schema(schemas.LogoutRequestSchema.Schema())
+    @response_schema(schemas.VerifyResponseSchema.Schema, 200)
     async def get(self):
-        await self._service.verify_user(self.request["headers"])
-        return HTTPOk()
+        return self.response(await self._service.verify_user(self.request["headers"]))
 
 
 class LogoutView(BaseViews):

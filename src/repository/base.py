@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from src.repository.query.user import (
     CreateUser,
-    GetUserByName,
+    GetUserByLogin,
     GetUserById,
     UpdateUserActive,
     GetUserByEmail,
@@ -16,7 +16,7 @@ class UserRepository(ABC):
 
     @property
     @abstractmethod
-    def get_user_by_name(self) -> GetUserByName: ...
+    def get_user_by_login(self) -> GetUserByLogin: ...
 
     @property
     @abstractmethod
