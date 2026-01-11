@@ -4,6 +4,7 @@ from src.api.v1 import views
 
 
 def create_v1_routes(app: Application, prefix: str):
+    app.router.add_view(rf"{prefix}/health", views.HealthView)
     app.router.add_view(rf"{prefix}/register", views.RegisterView)
     app.router.add_view(rf"{prefix}/login", views.LoginView)
     app.router.add_view(rf"{prefix}/logout", views.LogoutView)

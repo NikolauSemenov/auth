@@ -5,6 +5,21 @@ from src.api.v1.base import BaseViews
 from src.schemas import auth as schemas
 
 
+class HealthView(BaseViews):
+    @docs(
+        tags=["Health"],
+        summary="Проверка жизни сервиса",
+        responses={
+            201: {"description": "OK"},
+            409: {"description": "Exists"},
+            422: {"description": "Unprocessable Entity"},
+            503: {"description": "Service Unavailable"},
+        },
+    )
+    async def get(self):
+        return HTTPOk()
+
+
 class RegisterView(BaseViews):
     @docs(
         tags=["Auth"],
