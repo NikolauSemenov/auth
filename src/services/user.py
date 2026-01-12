@@ -124,9 +124,7 @@ class User:
         if not user.is_active:
             raise HTTPUnauthorized(text="User is not active")
 
-        bb = "".join(secrets.choice("0123456789") for _ in range(12))
-        print(bb)
-        hash_code = encrypt_code(bb)
+        hash_code = encrypt_code("".join(secrets.choice("0123456789") for _ in range(12)))
         await self._user_cache.add(
             f"auth:code:{data.email}",
             json.dumps({"hash_code": hash_code, "try": 0}),

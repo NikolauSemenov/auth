@@ -39,7 +39,7 @@ spec:
             - name: SECRET_KEY
               value: _ne5v1IzZ7lHd_OQjT0gDT84ZkjRly1XofLZOzRQ824=
             - name: KAFKA_BOOTSTRAP_SERVERS
-              value: my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+              value: kafka-service.kafka.svc.cluster.local:9092
 
           readinessProbe:
             httpGet:
