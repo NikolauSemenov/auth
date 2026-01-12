@@ -75,6 +75,7 @@ class User:
             token_type="Bearer",
             user_name=user_db.user_name,
             last_name=user_db.last_name,
+            user_id=user_db.id,
         )
 
     async def logout_user(self, data: LogoutRequestSchema):

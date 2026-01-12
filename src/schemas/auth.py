@@ -51,6 +51,7 @@ class RegisterResponseSchema(BaseSchema):
 class LoginResponseSchema(BaseSchema):
     user_name: str = field(metadata=dict(required=True))
     last_name: str = field(metadata=dict(required=True))
+    user_id: int = field(metadata=dict(required=True))
     access_token: str = field(metadata=dict(required=True))
     token_type: str = field(metadata=dict(required=True))
 
