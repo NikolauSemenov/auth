@@ -167,4 +167,5 @@ class User:
             token_type="Bearer",
             last_name=user.last_name,
             user_name=user.user_name,
+            user_id=user.id,
         )
